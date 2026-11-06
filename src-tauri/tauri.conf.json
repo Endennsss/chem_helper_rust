@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Chem Helper Rust",
+  "version": "1.0.0",
+  "identifier": "com.endennsss.chem-helper-rust",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "windows": [{ "title": "Chem Helper Rust", "width": 1280, "height": 820, "minWidth": 980, "minHeight": 640 }],
+    "security": { "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost data:; style-src 'self' 'unsafe-inline'" }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "shortDescription": "Помощник по химии Space Station 14",
+    "category": "Utility",
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "windows": { "nsis": { "displayLanguageSelector": true, "languages": ["Russian", "English"] } }
+  }
+}
