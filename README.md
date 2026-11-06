@@ -51,6 +51,17 @@ cargo run -p chem-core --example inspect -- --online
 `npm run dev` запускает только Vite; native-команды доступны при запуске через
 Tauri. Веб-версия с отдельным сервером в этот репозиторий не входит.
 
+Нативный smoke-тест интерфейса (нужны `tauri-driver` и WebKitWebDriver):
+
+```sh
+npm run tauri -- build --debug --no-bundle
+# Запустите tauri-driver с отдельным XDG_DATA_HOME, чтобы не трогать свой профиль.
+node tests/desktop-smoke.mjs
+```
+
+Тест добавляет препарат, проверяет расчёт и избранное, перезапускает настоящее
+приложение и проверяет восстановление очереди и избранного.
+
 ## Структура
 
 - `crates/chem-core` — расчёты, YAML/FTL, онлайн-обновление, кеш и сохранение.

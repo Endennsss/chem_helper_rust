@@ -380,7 +380,7 @@
 
       </section>
     </main>
-    
+
     <main v-else class="guide-workspace">
       <section class="panel guide-page">
         <header class="panel-heading">
@@ -578,17 +578,17 @@ watch(
 onMounted(async () => {
   window.addEventListener('storage-error', event => showToast(event.detail, 'error'));
   document.documentElement.classList.toggle('no-animations', !animationsEnabled.value);
-  
+
   if (splashEnabled.value) {
     splashStatus.value = 'Загрузка материалов...';
     await refreshMaterials();
-    
+
     splashStatus.value = 'Подготовка данных...';
     await refreshCalculation();
-    
+
     splashStatus.value = 'Готово!';
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     showSplash.value = false;
   } else {
     showSplash.value = false;
@@ -812,31 +812,31 @@ function showTooltip(item, event) {
   tooltipTimer = window.setTimeout(() => {
     if (item.description || item.color || item.effects) {
       tooltipItem.value = item;
-      
+
       nextTick(() => {
         const padding = 20;
         const tooltipWidth = 460;
         const maxTooltipHeight = window.innerHeight - 100;
-        
+
         let x = event.clientX;
         let y = event.clientY;
-        
+
         if (x + tooltipWidth / 2 + padding > window.innerWidth) {
           x = window.innerWidth - tooltipWidth / 2 - padding;
         }
         if (x - tooltipWidth / 2 < padding) {
           x = tooltipWidth / 2 + padding;
         }
-        
+
         const spaceAbove = y - padding;
         const spaceBelow = window.innerHeight - y - padding;
-        
+
         if (spaceAbove > maxTooltipHeight / 2 || spaceAbove > spaceBelow) {
           y = Math.max(y, maxTooltipHeight + padding + 16);
         } else {
           y = Math.min(y + 40, window.innerHeight - padding);
         }
-        
+
         tooltipPosition.value = { x, y };
       });
     }
