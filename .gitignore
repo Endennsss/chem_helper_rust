@@ -1,0 +1,9 @@
+/target/
+/src-tauri/target/
+/frontend/node_modules/
+/frontend/dist/
+/dist/
+/.superpowers/
+*.log
+.env
+.DS_Store
