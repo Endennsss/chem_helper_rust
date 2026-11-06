@@ -7,3 +7,5 @@
 *.log
 .env
 .DS_Store
+/node_modules/
+/src-tauri/gen/

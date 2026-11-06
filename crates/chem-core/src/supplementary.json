@@ -1,0 +1,554 @@
+{
+  "recipes": {
+    "Ammonia": {
+      "id": "Ammonia",
+      "name": "Аммиак",
+      "ingredients": {
+        "Hydrogen": 0.75,
+        "Nitrogen": 0.25
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Acetone": {
+      "id": "Acetone",
+      "name": "Ацетон",
+      "ingredients": {
+        "Oil": 0.5,
+        "WeldingFuel": 0.5,
+        "Oxygen": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Benzene": {
+      "id": "Benzene",
+      "name": "Бензол",
+      "ingredients": {
+        "Hydrogen": 1,
+        "Carbon": 1
+      },
+      "catalysts": {},
+      "temperature": 310,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Hydroxide": {
+      "id": "Hydroxide",
+      "name": "Гидроксид",
+      "ingredients": {
+        "Oxygen": 0.5,
+        "Hydrogen": 0.5
+      },
+      "catalysts": {},
+      "temperature": 310,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "SodiumHydroxide": {
+      "id": "SodiumHydroxide",
+      "name": "Гидроксид Натрия",
+      "ingredients": {
+        "Hydroxide": 0.5,
+        "Sodium": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Hyperzine": {
+      "id": "Hyperzine",
+      "name": "Гиперзин",
+      "ingredients": {
+        "Vestine": 0.5,
+        "Ephedrine": 0.5,
+        "Oxygen": 1
+      },
+      "catalysts": {},
+      "temperature": 370,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Desoxyephedrine": {
+      "id": "Desoxyephedrine",
+      "name": "Дезоксиэфедрин",
+      "ingredients": {
+        "Ephedrine": 0.25,
+        "Carbon": 0.25,
+        "Iodine": 0.25,
+        "Phosphorus": 0.25
+      },
+      "catalysts": {},
+      "temperature": 370,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Diphenylmethylamine": {
+      "id": "Diphenylmethylamine",
+      "name": "Дифенилметиламин",
+      "ingredients": {
+        "SodiumCarbonate": 0.33333,
+        "Coffee": 0.33333,
+        "Ethyloxyephedrine": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Diethylamine": {
+      "id": "Diethylamine",
+      "name": "Диэтиламин",
+      "ingredients": {
+        "Ammonia": 0.5,
+        "Ethanol": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "SodiumCarbonate": {
+      "id": "SodiumCarbonate",
+      "name": "Карбонат Натрия",
+      "ingredients": {
+        "Ammonia": 0.25,
+        "TableSalt": 0.25,
+        "Carbon": 0.25,
+        "Oxygen": 0.25
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "SpaceCleaner": {
+      "id": "SpaceCleaner",
+      "name": "Космический Очиститель",
+      "ingredients": {
+        "Water": 0.5,
+        "Ammonia": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Oil": {
+      "id": "Oil",
+      "name": "Масло",
+      "ingredients": {
+        "WeldingFuel": 0.33333,
+        "Hydrogen": 0.33333,
+        "Carbon": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "UnstableMutagen": {
+      "id": "UnstableMutagen",
+      "name": "Нестабильный Мутаген",
+      "ingredients": {
+        "Radium": 0.33333,
+        "Phosphorus": 0.33333,
+        "Chlorine": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Nocturine": {
+      "id": "Nocturine",
+      "name": "Ноктюрин",
+      "ingredients": {
+        "Impedrezene": 2,
+        "Vestine": 1
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "NorepinephricAcid": {
+      "id": "NorepinephricAcid",
+      "name": "Норэпинефриновая Кислота",
+      "ingredients": {
+        "Uranium": 0.5,
+        "Epinephrine": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Bleach": {
+      "id": "Bleach",
+      "name": "Отбеливатель",
+      "ingredients": {
+        "SodiumHydroxide": 0.2,
+        "SpaceCleaner": 0.4,
+        "TableSalt": 0.4
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Pax": {
+      "id": "Pax",
+      "name": "Пакс",
+      "ingredients": {
+        "MindbreakerToxin": 0.33333,
+        "Synaptizine": 0.33333,
+        "Water": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "FoamingAgent": {
+      "id": "FoamingAgent",
+      "name": "Пенообразователь",
+      "ingredients": {
+        "Lithium": 0.5,
+        "Hydrogen": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "SodiumPolyacrylate": {
+      "id": "SodiumPolyacrylate",
+      "name": "Поликарбонат Натрия",
+      "ingredients": {
+        "Oxygen": 0.5,
+        "Sodium": 0.25,
+        "Nitrogen": 0.25
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "PolytrinicAcid": {
+      "id": "PolytrinicAcid",
+      "name": "Политриниковая Кислота",
+      "ingredients": {
+        "SulfuricAcid": 0.33333,
+        "Plasma": 0.33333,
+        "Potassium": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Holywater": {
+      "id": "Holywater",
+      "name": "Святая Вода",
+      "ingredients": {
+        "Water": 1
+      },
+      "catalysts": {
+        "Blessing": 1
+      },
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "SulfuricAcid": {
+      "id": "SulfuricAcid",
+      "name": "Серная Кислота",
+      "ingredients": {
+        "Hydrogen": 0.33333,
+        "Sulfur": 0.33333,
+        "Oxygen": 0.66667
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Fersilicite": {
+      "id": "Fersilicite",
+      "name": "Силицид Железа",
+      "ingredients": {
+        "Iron": 0.5,
+        "Silicon": 0.5
+      },
+      "catalysts": {},
+      "temperature": 310,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "TableSalt": {
+      "id": "TableSalt",
+      "name": "Столовая Соль",
+      "ingredients": {
+        "Sodium": 1,
+        "Chlorine": 1
+      },
+      "catalysts": {},
+      "temperature": 370,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Stimulants": {
+      "id": "Stimulants",
+      "name": "Стимуляторы",
+      "ingredients": {
+        "Ephedrine": 0.5,
+        "Vestine": 0.5,
+        "Oxygen": 1
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Tazinide": {
+      "id": "Tazinide",
+      "name": "Тазинид",
+      "ingredients": {
+        "Licoxide": 1,
+        "Vestine": 1
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Thermite": {
+      "id": "Thermite",
+      "name": "Термит",
+      "ingredients": {
+        "Iron": 0.33333,
+        "Aluminium": 0.33333,
+        "Oxygen": 0.33333
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "MuteToxin": {
+      "id": "MuteToxin",
+      "name": "Токсин Немоты",
+      "ingredients": {
+        "Uranium": 0.5,
+        "Vestine": 1,
+        "SpaceGlue": 1
+      },
+      "catalysts": {},
+      "temperature": 370,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Charcoal": {
+      "id": "Charcoal",
+      "name": "Уголь",
+      "ingredients": {
+        "Carbon": 1,
+        "Ash": 1
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Phenol": {
+      "id": "Phenol",
+      "name": "Фенол",
+      "ingredients": {
+        "Hydroxide": 0.5,
+        "Benzene": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "FluorosulfuricAcid": {
+      "id": "FluorosulfuricAcid",
+      "name": "Фторосерная Кислота",
+      "ingredients": {
+        "Fluorine": 0.25,
+        "Hydrogen": 0.25,
+        "Potassium": 0.25,
+        "SulfuricAcid": 0.25
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Fluorosurfactant": {
+      "id": "Fluorosurfactant",
+      "name": "Фторсурфактант",
+      "ingredients": {
+        "Carbon": 0.4,
+        "Fluorine": 0.4,
+        "SulfuricAcid": 0.2
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "ChloralHydrate": {
+      "id": "ChloralHydrate",
+      "name": "Хлоральгидрат",
+      "ingredients": {
+        "Chlorine": 3,
+        "Ethanol": 1,
+        "Water": 1
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Ethyloxyephedrine": {
+      "id": "Ethyloxyephedrine",
+      "name": "Этилоксиэфедрин",
+      "ingredients": {
+        "Desoxyephedrine": 0.5,
+        "Stellibinin": 0.5
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    },
+    "Ephedrine": {
+      "id": "Ephedrine",
+      "name": "Эфедрин",
+      "ingredients": {
+        "Oil": 0.25,
+        "Hydrogen": 0.25,
+        "Sugar": 0.25,
+        "Diethylamine": 0.25
+      },
+      "catalysts": {},
+      "temperature": null,
+      "description": "",
+      "color": null,
+      "effects": []
+    }
+  },
+  "names": {
+    "Hydrogen": "Водород",
+    "Nitrogen": "Азот",
+    "Ammonia": "Аммиак",
+    "Oil": "Масло",
+    "WeldingFuel": "Сварочное Топливо",
+    "Oxygen": "Кислород",
+    "Acetone": "Ацетон",
+    "Carbon": "Углерод",
+    "Benzene": "Бензол",
+    "Hydroxide": "Гидроксид",
+    "Sodium": "Натрий",
+    "SodiumHydroxide": "Гидроксид Натрия",
+    "Vestine": "Вестин",
+    "Ephedrine": "Эфедрин",
+    "Hyperzine": "Гиперзин",
+    "Iodine": "Йод",
+    "Phosphorus": "Фосфор",
+    "Desoxyephedrine": "Дезоксиэфедрин",
+    "SodiumCarbonate": "Карбонат Натрия",
+    "Coffee": "Кофе",
+    "Ethyloxyephedrine": "Этилоксиэфедрин",
+    "Diphenylmethylamine": "Дифенилметиламин",
+    "Ethanol": "Этанол",
+    "Diethylamine": "Диэтиламин",
+    "TableSalt": "Столовая Соль",
+    "Water": "Вода",
+    "SpaceCleaner": "Космический Очиститель",
+    "Radium": "Радий",
+    "Chlorine": "Хлор",
+    "UnstableMutagen": "Нестабильный Мутаген",
+    "Impedrezene": "Импедрезен",
+    "Nocturine": "Ноктюрин",
+    "Uranium": "Уран",
+    "Epinephrine": "Эпинефрин",
+    "NorepinephricAcid": "Норэпинефриновая Кислота",
+    "Bleach": "Отбеливатель",
+    "MindbreakerToxin": "Токсин Майндбрейкер",
+    "Synaptizine": "Синаптизин",
+    "Pax": "Пакс",
+    "Lithium": "Литий",
+    "FoamingAgent": "Пенообразователь",
+    "SodiumPolyacrylate": "Поликарбонат Натрия",
+    "SulfuricAcid": "Серная Кислота",
+    "Plasma": "Плазма",
+    "Potassium": "Калий",
+    "PolytrinicAcid": "Политриниковая Кислота",
+    "Blessing": "Благословение",
+    "Holywater": "Святая Вода",
+    "Sulfur": "Сера",
+    "Iron": "Железо",
+    "Silicon": "Кремний",
+    "Fersilicite": "Силицид Железа",
+    "Stimulants": "Стимуляторы",
+    "Licoxide": "Ликоксид",
+    "Tazinide": "Тазинид",
+    "Aluminium": "Алюминий",
+    "Thermite": "Термит",
+    "SpaceGlue": "Космический Клей",
+    "MuteToxin": "Токсин Немоты",
+    "Ash": "Зола",
+    "Charcoal": "Уголь",
+    "Phenol": "Фенол",
+    "Fluorine": "Фтор",
+    "FluorosulfuricAcid": "Фторосерная Кислота",
+    "Fluorosurfactant": "Фторсурфактант",
+    "ChloralHydrate": "Хлоральгидрат",
+    "Stellibinin": "Стеллибинин",
+    "Sugar": "Сахар"
+  },
+  "source": "builtin"
+}
