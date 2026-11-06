@@ -42,7 +42,7 @@ fn sums_shared_intermediates_in_guide() {
     assert_eq!(result.guides[0].steps.last().unwrap().product, "Target");
 }
 #[test]
-fn rounds_after_aggregating_queue() {
+fn preserves_fractional_totals_after_aggregating_queue() {
     let mut catalog = graph();
     catalog
         .recipes
@@ -53,8 +53,8 @@ fn rounds_after_aggregating_queue() {
     let result = catalog
         .calculate(vec![item("Shared", 1.0), item("Shared", 1.0)])
         .unwrap();
-    assert_eq!(result.base[0].quantity, 1.0);
-    assert_eq!(result.direct[0].quantity, 1.0);
+    assert_eq!(result.base[0].quantity, 0.8);
+    assert_eq!(result.direct[0].quantity, 0.8);
 }
 #[test]
 fn rejects_non_finite_and_non_positive_quantities() {
@@ -88,4 +88,20 @@ fn resolves_localized_case_insensitive_names() {
     catalog.recipes.get_mut("Target").unwrap().name = "Препарат".into();
     let result = catalog.calculate(vec![item(" препарат ", 10.0)]).unwrap();
     assert_eq!(result.items[0].name, "Препарат");
+}
+
+#[test]
+fn rounds_quantized_shared_intermediate_only_after_summing_branches() {
+    let mut catalog = graph();
+    let shared = catalog.recipes.get_mut("Shared").unwrap();
+    shared.quantized = true;
+    shared.batch_size = 3.0;
+    let result = catalog.calculate(vec![item("Target", 1.0)]).unwrap();
+    let shared = result.guides[0]
+        .steps
+        .iter()
+        .find(|s| s.product == "Shared")
+        .unwrap();
+    assert_eq!(shared.quantity, 3.0);
+    assert_eq!(result.base[0].quantity, 3.0);
 }

@@ -13,18 +13,33 @@ struct NativeState {
 
 fn material_payload(catalog: &Catalog) -> Value {
     let mut recipes: Vec<_> = catalog
-        .recipes
-        .values()
+        .entries()
         .map(|r| {
             json!({
                 "name":r.name, "nameEn":r.id, "ingredientCount":r.ingredients.len(),
                 "temperature":r.temperature, "description":r.description,
-                "color":r.color, "effects":r.effects,
+                "color":r.color, "effects":r.effects, "category":r.category,
+                "reactionId":r.reaction_id,"unit":r.unit,"quantized":r.quantized,"batchSize":r.batch_size,
+                "conditions":r.conditions,"reactionEffects":r.reaction_effects,"maxTemperature":r.max_temperature,
+                "products":r.products.iter().map(|(id,amount)|json!({"name":catalog.display_name(id),"quantity":amount*r.batch_size})).collect::<Vec<_>>(),
+                "ingredientNames":r.ingredients.keys().map(|id|catalog.display_name(id)).collect::<Vec<_>>(),
+                "sourceUrl":format!("https://github.com/space-sunrise/sunrise-station/blob/{}/{}",catalog.metadata.revision,r.source_path),
             })
         })
         .collect();
     recipes.sort_by_key(|r| r["name"].as_str().unwrap_or_default().to_lowercase());
-    json!({ "count": recipes.len(), "materials":recipes, "source":catalog.source })
+    let mut aliases = serde_json::Map::new();
+    for (id, recipe) in &catalog.recipes {
+        if recipe.hidden {
+            let target = format!("reaction:{}", recipe.reaction_id);
+            aliases.insert(id.clone(), json!(target));
+            aliases.insert(recipe.name.clone(), json!(target));
+        }
+    }
+    if let Some(alias) = aliases.get("Stimulants").cloned() {
+        aliases.insert("Hyperzine".into(), alias);
+    }
+    json!({ "count": recipes.len(), "materials":recipes, "source":catalog.source,"revision":catalog.metadata.revision,"aliases":aliases })
 }
 
 #[tauri::command]

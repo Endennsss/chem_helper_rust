@@ -39,7 +39,7 @@ fn rejects_invalid_recipe_yields() {
 fn clean_install_has_working_offline_recipes() {
     let directory = tempfile::tempdir().unwrap();
     let catalog = CatalogRepository::new(directory.path().into()).load();
-    assert_eq!(catalog.recipes.len(), 35);
+    assert_eq!(catalog.entries().count(), 386);
     assert!(catalog
         .calculate(vec![chem_core::ProductionItem {
             name: "Аммиак".into(),
@@ -52,18 +52,18 @@ fn malformed_snapshot_falls_back_without_panicking() {
     let directory = tempfile::tempdir().unwrap();
     std::fs::write(directory.path().join("catalog.json"), "broken").unwrap();
     let catalog = CatalogRepository::new(directory.path().into()).load();
-    assert_eq!(catalog.source, "builtin");
+    assert_eq!(catalog.source, "bundled");
     assert!(!catalog.recipes.is_empty());
 }
 #[test]
-fn catalog_with_invalid_graph_does_not_replace_snapshot() {
+fn catalog_with_invalid_proportions_does_not_replace_snapshot() {
     let directory = tempfile::tempdir().unwrap();
     let repository = CatalogRepository::new(directory.path().into());
     repository.replace(&fixture()).unwrap();
     let mut source = fixture();
     source.recipes = source
         .recipes
-        .replace("Raw: {amount: 2}", "Test: {amount: 2}");
+        .replace("Raw: {amount: 2}", "Raw: {amount: -2}");
     assert!(repository.replace(&source).is_err());
 }
 #[test]
@@ -93,7 +93,10 @@ fn equal_translations_keep_distinct_selectable_products() {
         .localization
         .push_str("reagent-name-other = препарат\n");
     let catalog = parse_sources(&source).unwrap();
-    assert_ne!(catalog.recipes["Test"].name, catalog.recipes["Other"].name);
+    assert_ne!(
+        catalog.recipes["reaction:Test"].name,
+        catalog.recipes["reaction:Other"].name
+    );
 }
 #[test]
 fn retains_original_first_razorium_recipe_policy() {

@@ -19,6 +19,9 @@ impl Catalog {
         } else {
             key
         };
+        if self.recipes.contains_key(name.trim()) {
+            return Some(name.trim().into());
+        }
         self.recipes
             .iter()
             .find(|(id, r)| id.to_lowercase() == key || r.name.to_lowercase() == key)
@@ -43,24 +46,46 @@ impl Catalog {
             let id = self
                 .resolve(&item.name)
                 .ok_or_else(|| format!("Материал не найден: {}", item.name))?;
+            let selected = &self.recipes[&id];
+            let mut amount = item.quantity;
+            if selected.quantized {
+                if selected.unit == "реакц." && amount.fract().abs() > 1e-9 {
+                    return Err("Для этой реакции нужно целое число порций".into());
+                }
+                let batch = selected.batch_size.max(1e-9);
+                amount = ((amount / batch) - 1e-10).ceil() * batch;
+            }
             let name = self.display_name(&id);
             for (ingredient, ratio) in &self.recipes[&id].ingredients {
-                add(&mut direct, ingredient, item.quantity * ratio)?;
+                add(&mut direct, ingredient, amount * ratio)?;
             }
-            let mut demands = BTreeMap::new();
+            let mut demands = BTreeMap::from([(id.clone(), amount)]);
             let mut order = Vec::new();
-            let mut emitted = BTreeSet::new();
-            let mut visits = 0;
-            self.expand(
+            self.collect(
                 &id,
-                item.quantity,
                 &mut Vec::new(),
-                &mut demands,
-                &mut base,
                 &mut order,
-                &mut emitted,
-                &mut visits,
+                &mut BTreeSet::new(),
+                &mut 0,
             )?;
+            for product in order.iter().rev() {
+                let recipe = &self.recipes[product];
+                let wanted = demands[product];
+                let produced = if recipe.quantized {
+                    let batch = recipe.batch_size.max(1e-9);
+                    ((wanted / batch) - 1e-10).ceil() * batch
+                } else {
+                    wanted
+                };
+                demands.insert(product.clone(), produced);
+                for (ingredient, ratio) in &recipe.ingredients {
+                    if self.recipes.contains_key(ingredient) {
+                        add(&mut demands, ingredient, produced * ratio)?;
+                    } else {
+                        add(&mut base, ingredient, produced * ratio)?;
+                    }
+                }
+            }
             let steps = order
                 .into_iter()
                 .map(|product: String| {
@@ -73,8 +98,19 @@ impl Catalog {
                         .collect();
                     Step {
                         product: self.display_name(&product),
-                        quantity: amount.round(),
+                        quantity: precise(amount),
                         temperature: recipe.temperature,
+                        products: self.rows(
+                            &recipe
+                                .products
+                                .iter()
+                                .map(|(id, ratio)| (id.clone(), amount * ratio))
+                                .collect(),
+                        ),
+                        conditions: recipe.conditions.clone(),
+                        effects: recipe.reaction_effects.clone(),
+                        max_temperature: recipe.max_temperature,
+                        unit: recipe.unit.clone(),
                         ingredients: self.rows(&ingredients),
                         // Catalysts are required amounts, not consumed ingredients.
                         catalysts: recipe
@@ -94,8 +130,13 @@ impl Catalog {
             });
             guides.push(Guide {
                 name,
-                quantity: item.quantity.round(),
+                quantity: precise(amount),
                 steps,
+                unit: if selected.unit.is_empty() {
+                    "u".into()
+                } else {
+                    selected.unit.clone()
+                },
             });
         }
         guides.reverse();
@@ -107,14 +148,10 @@ impl Catalog {
         })
     }
 
-    #[allow(clippy::too_many_arguments)]
-    fn expand(
+    fn collect(
         &self,
         id: &str,
-        amount: f64,
         trail: &mut Vec<String>,
-        demands: &mut BTreeMap<String, f64>,
-        base: &mut BTreeMap<String, f64>,
         order: &mut Vec<String>,
         emitted: &mut BTreeSet<String>,
         visits: &mut usize,
@@ -129,30 +166,22 @@ impl Catalog {
                 trail.join(" -> ")
             ));
         }
+        if emitted.contains(id) {
+            return Ok(());
+        }
         let Some(recipe) = self.recipes.get(id) else {
-            return add(base, id, amount);
+            return Ok(());
         };
-        add(demands, id, amount)?;
         trail.push(id.into());
         for (ingredient, ratio) in &recipe.ingredients {
             if !ratio.is_finite() || *ratio <= 0.0 {
                 return Err(format!("Некорректная пропорция: {id}"));
             }
-            self.expand(
-                ingredient,
-                amount * ratio,
-                trail,
-                demands,
-                base,
-                order,
-                emitted,
-                visits,
-            )?;
+            self.collect(ingredient, trail, order, emitted, visits)?;
         }
         trail.pop();
-        if emitted.insert(id.into()) {
-            order.push(id.into());
-        }
+        emitted.insert(id.into());
+        order.push(id.into());
         Ok(())
     }
 
@@ -161,7 +190,7 @@ impl Catalog {
             .iter()
             .map(|(id, amount)| Row {
                 name: self.display_name(id),
-                quantity: amount.round(),
+                quantity: precise(*amount),
             })
             .collect();
         rows.sort_by_key(|row| row.name.to_lowercase());
@@ -176,4 +205,8 @@ fn add(totals: &mut BTreeMap<String, f64>, id: &str, amount: f64) -> Result<(), 
         return Err("Количество ингредиентов слишком велико".into());
     }
     Ok(())
+}
+
+fn precise(value: f64) -> f64 {
+    (value * 1_000_000.0).round() / 1_000_000.0
 }

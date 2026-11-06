@@ -479,7 +479,7 @@ dependencies = [
 
 [[package]]
 name = "chem-core"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "reqwest 0.12.28",
  "serde",
@@ -490,7 +490,7 @@ dependencies = [
 
 [[package]]
 name = "chem-helper-rust"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "chem-core",
  "serde",

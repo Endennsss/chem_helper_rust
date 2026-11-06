@@ -61,11 +61,11 @@
         <section class="panel composer-panel">
           <header class="panel-heading">
             <FlaskConical :size="18" />
-            <span>Новый препарат</span>
+            <span>Добавить реакцию</span>
           </header>
 
           <div class="field-stack">
-            <label for="quantity">Количество</label>
+            <label for="quantity">{{ quantityLabel }}</label>
             <div class="quantity-control">
               <button type="button" class="step-button" title="Уменьшить" @click="nudgeQuantity(-5)">
                 <Minus :size="16" />
@@ -74,7 +74,9 @@
                 id="quantity"
                 v-model.number="quantity"
                 type="number"
-                min="1"
+                :min="selectedRecipe?.quantized && selectedRecipe.unit === 'реакц.' ? 1 : 0.000001"
+                :step="selectedRecipe?.quantized && selectedRecipe.unit === 'реакц.' ? 1 : 'any'"
+                max="1000000000"
                 inputmode="decimal"
                 @keydown.enter.prevent="focusMaterial"
               />
@@ -85,7 +87,7 @@
           </div>
 
           <div class="field-stack combo-field">
-            <label for="material">Препарат</label>
+            <label for="material">Рецепт</label>
             <div class="combo-box">
               <Search :size="17" />
               <input
@@ -94,7 +96,7 @@
                 v-model="materialQuery"
                 type="text"
                 autocomplete="off"
-                placeholder="Название рецепта"
+                placeholder="Рецепт или исходный реагент"
                 @focus="suggestionsOpen = true"
                 @blur="closeSuggestions"
                 @keydown.enter.prevent="addMaterial"
@@ -107,7 +109,7 @@
               <div v-if="suggestionsOpen && filteredMaterials.length" class="suggestions">
                 <button
                   v-for="(recipe, index) in filteredMaterials"
-                  :key="recipe.name"
+                  :key="recipe.nameEn"
                   type="button"
                   :class="{ active: index === activeSuggestion }"
                   @mousedown.prevent="selectMaterial(recipe)"
@@ -119,6 +121,8 @@
             </Transition>
           </div>
 
+          <p v-if="selectedRecipe?.quantized && selectedRecipe.unit === 'u'" class="recipe-hint">Целая порция: {{ formatQuantity(selectedRecipe.batchSize) }}u. Объём округляется вверх до целой порции.</p>
+          <p v-if="selectedRecipe?.quantized && selectedRecipe.unit === 'реакц.'" class="recipe-hint">Введите целое число порций реакции.</p>
           <button class="primary-action" type="button" @click="addMaterial">
             <Plus :size="18" />
             Добавить
@@ -131,17 +135,26 @@
             <span>Каталог</span>
             <b>{{ materials.length }}</b>
           </header>
+          <label class="library-filter" for="recipe-category">
+            <span>Категория</span>
+            <select id="recipe-category" v-model="selectedCategory">
+              <option value="">Все категории ({{ materials.length }})</option>
+              <option v-for="category in categoryOptions" :key="category.name" :value="category.name">{{ category.name }} ({{ category.count }})</option>
+            </select>
+          </label>
+          <p class="catalog-state">{{ sourceLabel }} · {{ libraryMaterials.length }} из {{ materials.length }}</p>
           <div class="library-list">
             <button
               v-for="recipe in libraryMaterials"
-              :key="recipe.name"
+              :key="recipe.nameEn"
               type="button"
+              :data-reaction-id="recipe.reactionId"
               @click="selectMaterial(recipe)"
               @mouseenter="showTooltip(recipe, $event)"
               @mouseleave="hideTooltip"
             >
               <span>{{ recipe.name }}</span>
-              <Thermometer v-if="recipe.temperature" :size="13" />
+              <Thermometer v-if="recipe.temperature != null || recipe.maxTemperature != null" :size="13" />
             </button>
           </div>
         </section>
@@ -157,7 +170,7 @@
             <div v-for="(item, index) in favorites" :key="favoriteKey(item, index)" class="favorite-row">
               <button type="button" class="row-main" @click="useFavorite(item)">
                 <Play :size="15" />
-                <span>{{ item.quantity }}u {{ item.name }}</span>
+                <span>{{ formatQuantity(item.quantity) }}{{ item.unit || 'u' }} {{ item.name }}</span>
               </button>
               <button
                 class="icon-button compact"
@@ -185,7 +198,7 @@
             <strong>{{ activeResultCount }}</strong>
           </div>
           <div class="metric">
-            <span>Юнитов</span>
+            <span>Всего</span>
             <strong>{{ totalRequested }}</strong>
           </div>
 
@@ -204,7 +217,7 @@
 
             <TransitionGroup v-if="queuedItems.length" name="row" tag="div" class="queue-list">
               <article v-for="item in queuedItems" :key="item.key" class="queue-row">
-                <div class="amount-badge">{{ formatQuantity(item.quantity) }}u</div>
+                <div class="amount-badge">{{ formatQuantity(item.quantity) }}{{ item.unit || 'u' }}</div>
                 <div class="queue-name">{{ item.name }}</div>
                 <div class="row-actions">
                   <button
@@ -238,14 +251,14 @@
                   :class="{ active: activeResult === 'direct' }"
                   @click="activeResult = 'direct'"
                 >
-                  Реакции
+                  Компоненты
                 </button>
                 <button
                   type="button"
                   :class="{ active: activeResult === 'base' }"
                   @click="activeResult = 'base'"
                 >
-                  База
+                  Исходные
                 </button>
               </div>
             </header>
@@ -257,7 +270,7 @@
                 <template v-else-if="activeRows.length">
                   <div v-for="row in activeRows" :key="`${activeResult}-${row.name}`" class="result-row">
                     <span>{{ row.name }}</span>
-                    <strong>{{ row.quantity }}u</strong>
+                    <strong>{{ formatQuantity(row.quantity) }}u</strong>
                   </div>
                 </template>
 
@@ -279,7 +292,7 @@
                 class="guide-block"
               >
                 <button class="guide-title" type="button" @click="toggleGuide(guide, guideIndex)">
-                  <span>{{ guide.quantity }}u {{ guide.name }}</span>
+                  <span>{{ formatQuantity(guide.quantity) }}{{ guide.unit || 'u' }} {{ guide.name }}</span>
                   <ChevronDown :class="{ open: isGuideOpen(guide, guideIndex) }" :size="18" />
                 </button>
 
@@ -290,18 +303,27 @@
                       <div class="step-body">
                         <div class="step-title">
                           <span>{{ step.product }}</span>
-                          <strong>{{ step.quantity }}u</strong>
-                          <em v-if="step.temperature">
+                          <strong>{{ formatQuantity(step.quantity) }}{{ step.unit || 'u' }}</strong>
+                          <em v-if="step.temperature != null || step.maxTemperature != null">
                             <Thermometer :size="13" />
-                            {{ formatTemperature(step.temperature) }}K
+                            {{ temperatureLabel(step.temperature, step.maxTemperature) }}
                           </em>
                         </div>
                         <div class="ingredient-grid">
                           <span v-for="ingredient in step.ingredients" :key="ingredient.name">
                             {{ ingredient.name }}
-                            <b>{{ ingredient.quantity }}u</b>
+                            <b>{{ formatQuantity(ingredient.quantity) }}u</b>
                           </span>
                         </div>
+                        <div v-if="step.products?.length" class="reaction-outputs">
+                          <span class="reaction-detail-label">Выход</span>
+                          <div class="ingredient-grid">
+                            <span v-for="product in step.products" :key="product.name">{{ product.name }} <b>{{ formatQuantity(product.quantity) }}u</b></span>
+                          </div>
+                        </div>
+                        <ul v-if="step.conditions?.length || step.effects?.length" class="reaction-conditions">
+                          <li v-for="condition in [...(step.conditions || []), ...(step.effects || [])]" :key="condition">{{ condition }}</li>
+                        </ul>
                         <div v-if="step.catalysts?.length" class="ingredient-grid">
                           <span v-for="catalyst in step.catalysts" :key="catalyst.name">
                             Катализатор: {{ catalyst.name }}
@@ -426,15 +448,21 @@
           <div v-if="formatColor(tooltipItem.color)" class="tooltip-color" :style="{ backgroundColor: formatColor(tooltipItem.color) }"></div>
         </div>
         <div v-if="tooltipItem.description" class="tooltip-description">{{ tooltipItem.description }}</div>
+        <div class="tooltip-description">{{ tooltipItem.category }} · {{ tooltipItem.reactionId }}</div>
+        <div v-if="tooltipItem.ingredientNames?.length" class="tooltip-description">Компоненты: {{ tooltipItem.ingredientNames.join(', ') }}</div>
+        <div v-if="tooltipItem.products?.length" class="tooltip-description">Выход порции: {{ tooltipItem.products.map(p => `${formatQuantity(p.quantity)}u ${p.name}`).join(', ') }}</div>
+        <ul v-if="tooltipItem.conditions?.length || tooltipItem.reactionEffects?.length" class="reaction-conditions">
+          <li v-for="line in [...(tooltipItem.conditions || []), ...(tooltipItem.reactionEffects || [])]" :key="line">{{ line }}</li>
+        </ul>
         <div v-if="tooltipItem.effects && tooltipItem.effects.length" class="tooltip-effects">
           <strong>Эффекты:</strong>
           <ul>
             <li v-for="(effect, index) in tooltipItem.effects" :key="index">{{ effect }}</li>
           </ul>
         </div>
-        <div v-if="tooltipItem.temperature" class="tooltip-temp">
+        <div v-if="tooltipItem.temperature != null || tooltipItem.maxTemperature != null" class="tooltip-temp">
           <Thermometer :size="13" />
-          Температура: {{ formatTemperature(tooltipItem.temperature) }}K
+          Температура: {{ temperatureLabel(tooltipItem.temperature, tooltipItem.maxTemperature) }}
         </div>
       </div>
     </Transition>
@@ -467,6 +495,7 @@ import {
 } from '@lucide/vue';
 import { calculateProduction, loadMaterials, refreshMaterialsFromSource } from '../services/api';
 import { storage } from '../services/storage';
+import { categories, filterRecipes, sumUnits, migrateSavedItems, temperatureLabel } from '../services/catalog-view';
 
 const EMPTY_CALCULATION = {
   items: [],
@@ -476,6 +505,11 @@ const EMPTY_CALCULATION = {
 };
 
 const materials = ref([]);
+const materialAliases = ref({});
+const selectedCategory = ref(storage.getItem('recipeCategory') || '');
+const categoryOptions = computed(() => categories(materials.value));
+const selectedRecipe = computed(() => materials.value.find(r => r.name === materialQuery.value) || (materialQuery.value.trim() ? filteredMaterials.value[activeSuggestion.value] : null));
+const quantityLabel = computed(() => selectedRecipe.value?.unit === 'реакц.' ? 'Число порций реакции' : selectedRecipe.value?.products?.length > 1 ? 'Объём смеси, u' : 'Объём продукта, u');
 const production = ref(readStorage('productionItems', []));
 const favorites = ref(readStorage('favoriteItems', []));
 const calculation = ref(EMPTY_CALCULATION);
@@ -494,7 +528,7 @@ const apiState = ref('loading');
 const catalogSource = ref('builtin');
 const catalogUpdating = ref(false);
 const catalogWarning = ref('');
-const sourceLabel = computed(() => ({ builtin: 'Встроенные рецепты', cache: 'Сохранённый каталог', online: 'Обновлён из Sunrise' }[catalogSource.value] || catalogSource.value));
+const sourceLabel = computed(() => ({ builtin: 'Рецепты Sunrise', bundled: 'Каталог Sunrise', cache: 'Сохранённый Sunrise', online: 'Актуальный Sunrise' }[catalogSource.value] || catalogSource.value));
 const busy = ref(false);
 const toast = ref(null);
 const tooltipItem = ref(null);
@@ -508,21 +542,8 @@ let tooltipTimer = 0;
 
 const normalizedQuery = computed(() => materialQuery.value.trim().toLocaleLowerCase('ru'));
 
-const filteredMaterials = computed(() => {
-  const query = normalizedQuery.value;
-  const source = query
-    ? materials.value.filter((recipe) => recipe.name.toLocaleLowerCase('ru').includes(query))
-    : materials.value;
-
-  return source.slice(0, 10);
-});
-
-const libraryMaterials = computed(() => {
-  const query = normalizedQuery.value;
-  return query
-    ? materials.value.filter((recipe) => recipe.name.toLocaleLowerCase('ru').includes(query))
-    : materials.value;
-});
+const libraryMaterials = computed(() => filterRecipes(materials.value, selectedCategory.value, normalizedQuery.value));
+const filteredMaterials = computed(() => libraryMaterials.value.slice(0, 10));
 
 const queuedItems = computed(() =>
   production.value
@@ -536,7 +557,11 @@ const queuedItems = computed(() =>
 
 const activeRows = computed(() => calculation.value[activeResult.value] || []);
 const activeResultCount = computed(() => activeRows.value.length);
-const totalRequested = computed(() => formatQuantity(production.value.reduce((sum, item) => sum + Number(item.quantity || 0), 0)));
+const totalRequested = computed(() => {
+  const { volume, batches } = sumUnits(production.value);
+  return [volume ? `${formatQuantity(volume)}u` : '', batches ? `${formatQuantity(batches)} порц.` : ''].filter(Boolean).join(' + ') || '0u';
+});
+watch(selectedCategory, value => { activeSuggestion.value = 0; storage.setItem('recipeCategory', value); });
 
 watch(
   production,
@@ -607,12 +632,22 @@ function readStorage(key, fallback) {
   }
 }
 
+function applyCatalog(payload) {
+  materials.value = payload.materials;
+  materialAliases.value = payload.aliases || {};
+  catalogSource.value = payload.source;
+  if (selectedCategory.value && !categoryOptions.value.some(c => c.name === selectedCategory.value)) selectedCategory.value = '';
+  const queue = migrateSavedItems(production.value, materials.value, materialAliases.value);
+  const saved = migrateSavedItems(favorites.value, materials.value, materialAliases.value);
+  if (JSON.stringify(queue) !== JSON.stringify(production.value)) production.value = queue;
+  if (JSON.stringify(saved) !== JSON.stringify(favorites.value)) favorites.value = saved;
+}
+
 async function refreshMaterials() {
   apiState.value = 'loading';
   try {
     const payload = await loadMaterials();
-    materials.value = payload.materials;
-    catalogSource.value = payload.source;
+    applyCatalog(payload);
     apiState.value = 'ready';
   } catch (error) {
     apiState.value = 'error';
@@ -626,8 +661,7 @@ async function updateOnlineCatalog(quiet = false) {
   catalogWarning.value = '';
   try {
     const payload = await refreshMaterialsFromSource();
-    materials.value = payload.materials;
-    catalogSource.value = payload.source;
+    applyCatalog(payload);
     await refreshCalculation();
     if (!quiet) showToast(`Каталог обновлён: ${payload.count} рецептов`, 'info');
   } catch (error) {
@@ -654,6 +688,7 @@ async function refreshCalculation() {
   } catch (error) {
     if (run !== calculationRun) return;
     apiState.value = 'error';
+    calculation.value = EMPTY_CALCULATION;
     showToast(error.message || String(error) || 'Ошибка расчета', 'error');
   } finally {
     if (run === calculationRun) {
@@ -673,8 +708,8 @@ function addMaterial() {
   const selected = filteredMaterials.value[activeSuggestion.value];
   const recipe = query ? findRecipe(query) || selected : null;
 
-  if (!Number.isFinite(amount) || amount <= 0) {
-    showToast('Введите корректное количество', 'error');
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 1_000_000_000) {
+    showToast('Введите количество больше 0 и не больше 1 000 000 000', 'error');
     return;
   }
 
@@ -683,9 +718,15 @@ function addMaterial() {
     return;
   }
 
+  if (recipe.quantized && recipe.unit === 'реакц.' && Math.abs(amount % 1) > 1e-9) {
+    showToast('Для этой реакции нужно целое число порций', 'error');
+    return;
+  }
+
   production.value.push({
     name: recipe.name,
     id: recipe.nameEn,
+    unit: recipe.unit,
     quantity: amount,
   });
 
@@ -713,6 +754,7 @@ function addFavorite(item) {
   favorites.value.push({
     name: item.name,
     id: item.id,
+    unit: item.unit || 'u',
     quantity: item.quantity,
   });
 }
@@ -728,9 +770,14 @@ function removeFavorite(index) {
 }
 
 function useFavorite(item) {
+  if (!materials.value.some(r => r.nameEn === item.id)) {
+    showToast('Этот старый рецепт отсутствует в текущем билде Sunrise', 'error');
+    return;
+  }
   production.value.push({
     name: item.name,
     id: item.id,
+    unit: item.unit || 'u',
     quantity: Number(item.quantity),
   });
 }
@@ -791,12 +838,12 @@ function toggleGuide(guide, index) {
 function formatQuantity(value) {
   const number = Number(value || 0);
   if (Number.isInteger(number)) return String(number);
-  return number.toFixed(2).replace(/\.?0+$/, '');
+  return number.toFixed(6).replace(/\.?0+$/, '');
 }
 
 function formatTemperature(value) {
   const number = Number(value || 0);
-  return Number.isInteger(number) ? String(number) : number.toFixed(2);
+  return Number.isInteger(number) ? String(number) : number.toFixed(6);
 }
 
 function showToast(text, type = 'info') {
@@ -810,7 +857,7 @@ function showToast(text, type = 'info') {
 function showTooltip(item, event) {
   window.clearTimeout(tooltipTimer);
   tooltipTimer = window.setTimeout(() => {
-    if (item.description || item.color || item.effects) {
+    if (item.description || item.color || item.effects || item.ingredientNames) {
       tooltipItem.value = item;
 
       nextTick(() => {

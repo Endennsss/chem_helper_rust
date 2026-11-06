@@ -33,9 +33,34 @@ async function quit() {
 }
 try {
   await launch();
-  await execute('document.querySelector(".library-list button").click()');
+  assert.equal(await execute('return Number(document.querySelector(".library-panel .panel-heading b").textContent)'),386);
+  assert.ok(await execute('return document.querySelector("#recipe-category").options.length >= 14'));
+  await execute('const select=document.querySelector("#recipe-category"); select.value="Напитки"; select.dispatchEvent(new Event("change",{bubbles:true}))');
+  await waitFor('return document.querySelectorAll(".library-list button").length === 138');
+  await execute('const select=document.querySelector("#recipe-category"); select.value=""; select.dispatchEvent(new Event("change",{bubbles:true}))');
+  await waitFor('return document.querySelectorAll(".library-list button").length === 386');
+  await execute('document.querySelector("[data-reaction-id=Fresium]").click()');
   await execute('document.querySelector(".composer-panel .primary-action").click()');
-  await waitFor('return !!document.querySelector(".queue-row") && !!document.querySelector(".step-row")');
+  await waitFor('return document.querySelector(".guide-list")?.textContent.includes("≤ 300K")');
+  // Invalid whole-batch input must not poison an existing valid queue.
+  await execute('document.querySelector("[data-reaction-id=CreateDough]").click()');
+  await execute('const input=document.querySelector("#quantity"); input.value="1.5"; input.dispatchEvent(new Event("input",{bubbles:true}))');
+  await execute('document.querySelector(".composer-panel .primary-action").click()');
+  await delay(300);
+  assert.equal(await execute('return document.querySelectorAll(".queue-row").length'),1,'Fractional batch input must leave valid queue unchanged');
+  assert.ok(await execute('return !!document.querySelector(".step-row")'),'Valid calculation must remain visible');
+  await execute('const input=document.querySelector("#material"); input.value=""; input.dispatchEvent(new Event("input",{bubbles:true})); const quantity=document.querySelector("#quantity"); quantity.value="30"; quantity.dispatchEvent(new Event("input",{bubbles:true}))');
+  await execute('document.querySelector(".command-strip .ghost-action").click()');
+  await waitFor('return !document.querySelector(".queue-row")');
+  await execute('document.querySelector("[data-reaction-id=BloodBreakdown]").click()');
+  await execute('document.querySelector(".composer-panel .primary-action").click()');
+  await waitFor('return document.querySelector(".guide-list")?.textContent.includes("Центрифуга") && document.querySelectorAll(".reaction-outputs .ingredient-grid span").length >= 5');
+  await execute('document.querySelector("[data-reaction-id=Foam]").click()');
+  await waitFor('return document.querySelector("label[for=quantity]").textContent.includes("Число порций")');
+  await execute('const input=document.querySelector("#quantity"); input.value="2"; input.dispatchEvent(new Event("input",{bubbles:true}))');
+  await execute('document.querySelector(".composer-panel .primary-action").click()');
+  await waitFor('return document.querySelector(".queue-row")?.textContent.includes("2реакц.") && !!document.querySelector(".step-row")');
+  assert.ok(await execute('return document.querySelector(".command-strip").textContent.includes("30u + 2 порц.")'),'Volume and batches must be counted separately');
   await execute('document.querySelector(".favorite-toggle").click()');
   await waitFor('return document.querySelectorAll(".favorite-row").length === 1');
   const favorite = await execute('return document.querySelector(".favorite-row .row-main").textContent.trim()');
@@ -47,6 +72,6 @@ try {
   await launch();
   const restored = await execute('return document.querySelector(".favorite-row .row-main")?.textContent.trim()');
   assert.equal(restored,favorite);
-  await waitFor('return document.querySelectorAll(".queue-row").length === 1 && !!document.querySelector(".step-row")');
-  console.log('Native desktop: catalog, queue, calculation, favorite, restart persistence and screenshot OK');
+  await waitFor('return document.querySelectorAll(".queue-row").length === 2 && !!document.querySelector(".step-row")');
+  console.log('Native desktop: full 386-reaction offline catalog, 13 categories, cold synthesis, multi-output/equipment, batch units, favorite restart and screenshot OK');
 } finally { await quit(); }
