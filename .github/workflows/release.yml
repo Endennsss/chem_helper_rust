@@ -64,16 +64,15 @@ jobs:
         with:
           path: release-assets
           merge-multiple: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Publish verified native artifacts
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          mkdir -p dist
-          find release-assets -type f -exec cp {} dist/ \;
-          cd dist
-          sha256sum * > SHA256SUMS.txt
-          cd ..
+          node scripts/prepare-release.mjs release-assets dist
           gh release create "$RELEASE_TAG" dist/* --title "Chem Helper Rust $RELEASE_TAG" --notes-file RELEASE_NOTES.md --draft
           gh release edit "$RELEASE_TAG" --draft=false --latest
