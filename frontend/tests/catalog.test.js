@@ -1,5 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { formatQuantity } from '../src/services/catalog-view.js';
+
+test('formats quantities to tenths without changing calculation inputs', () => {
+  assert.equal(formatQuantity(1 / 3), '0,3');
+  assert.equal(formatQuantity(12.56), '12,6');
+  assert.equal(formatQuantity(30), '30');
+  assert.equal(formatQuantity(0), '0');
+  assert.equal(formatQuantity(0.04), '0');
+  assert.equal(formatQuantity(0.05), '0,1');
+});
 import { categories,filterRecipes,sumUnits,migrateSavedItems } from '../src/services/catalog-view.js';
 const recipes=[
   {name:'Коктейль',nameEn:'reaction:Drink',reactionId:'Drink',category:'Напитки',unit:'u',ingredientNames:['Сок']},

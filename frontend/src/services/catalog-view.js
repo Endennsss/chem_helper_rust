@@ -29,3 +29,11 @@ export function temperatureLabel(minimum, maximum) {
   if (maximum != null) return `≤ ${maximum}K`;
   return '';
 }
+
+export function formatQuantity(value) {
+  const number = Number(value || 0);
+  return new Intl.NumberFormat('ru-RU', {
+    maximumFractionDigits: 1,
+    useGrouping: false,
+  }).format(number);
+}

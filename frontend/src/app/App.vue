@@ -137,10 +137,13 @@
           </header>
           <label class="library-filter" for="recipe-category">
             <span>Категория</span>
-            <select id="recipe-category" v-model="selectedCategory">
-              <option value="">Все категории ({{ materials.length }})</option>
-              <option v-for="category in categoryOptions" :key="category.name" :value="category.name">{{ category.name }} ({{ category.count }})</option>
-            </select>
+            <div class="category-select">
+              <select id="recipe-category" v-model="selectedCategory">
+                <option value="">Все категории ({{ materials.length }})</option>
+                <option v-for="category in categoryOptions" :key="category.name" :value="category.name">{{ category.name }} ({{ category.count }})</option>
+              </select>
+              <ChevronDown :size="16" aria-hidden="true" />
+            </div>
           </label>
           <p class="catalog-state">{{ sourceLabel }} · {{ libraryMaterials.length }} из {{ materials.length }}</p>
           <div class="library-list">
@@ -315,7 +318,13 @@
                             <b>{{ formatQuantity(ingredient.quantity) }}u</b>
                           </span>
                         </div>
-                        <div v-if="step.products?.length" class="reaction-outputs">
+                        <details v-if="step.products?.length > 1" class="reaction-outputs">
+                          <summary class="reaction-detail-label">Продукты реакции ({{ step.products.length }})</summary>
+                          <div class="ingredient-grid">
+                            <span v-for="product in step.products" :key="product.name">{{ product.name }} <b>{{ formatQuantity(product.quantity) }}u</b></span>
+                          </div>
+                        </details>
+                        <div v-else-if="step.products?.length" class="reaction-outputs">
                           <span class="reaction-detail-label">Выход</span>
                           <div class="ingredient-grid">
                             <span v-for="product in step.products" :key="product.name">{{ product.name }} <b>{{ formatQuantity(product.quantity) }}u</b></span>
@@ -327,7 +336,7 @@
                         <div v-if="step.catalysts?.length" class="ingredient-grid">
                           <span v-for="catalyst in step.catalysts" :key="catalyst.name">
                             Катализатор: {{ catalyst.name }}
-                            <b>{{ catalyst.quantity }}u · не расходуется</b>
+                            <b>{{ formatQuantity(catalyst.quantity) }}u · не расходуется</b>
                           </span>
                         </div>
                       </div>
@@ -495,7 +504,7 @@ import {
 } from '@lucide/vue';
 import { calculateProduction, loadMaterials, refreshMaterialsFromSource } from '../services/api';
 import { storage } from '../services/storage';
-import { categories, filterRecipes, sumUnits, migrateSavedItems, temperatureLabel } from '../services/catalog-view';
+import { categories, filterRecipes, sumUnits, migrateSavedItems, temperatureLabel, formatQuantity } from '../services/catalog-view';
 
 const EMPTY_CALCULATION = {
   items: [],
@@ -833,12 +842,6 @@ function toggleGuide(guide, index) {
     next.add(key);
   }
   expandedGuides.value = next;
-}
-
-function formatQuantity(value) {
-  const number = Number(value || 0);
-  if (Number.isInteger(number)) return String(number);
-  return number.toFixed(6).replace(/\.?0+$/, '');
 }
 
 function formatTemperature(value) {
